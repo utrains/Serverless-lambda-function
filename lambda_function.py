@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 #define our dynamodb table
-dynamodbTableName = 'product-inventory'
+dynamodbTableName = 'userseverless'
 
 #define our dynamo clients
 dynamodb = boto3.resource('dynamodb')
@@ -24,8 +24,8 @@ deleteMethod = 'DELETE'
 
 #define our Paths
 healthPath = '/health'
-productPath = '/product'
-productsPath = '/products'
+productPath = '/user'
+productsPath = '/users'
 
 # entry point for our lambda function
 def lambda_handler(event, context):
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     if httpMethod == getMethod and path == healthPath:
         response = buildResponse(200)
     elif httpMethod == getMethod and path == productPath:
-        response = getProduct(event['queryStringParameters']['productId'])
+        response = getProduct(event['queryStringParameters']['id'])
     elif httpMethod == getMethod and path == productsPath:
         response = getProducts()
     elif httpMethod == postMethod and path == productPath:
@@ -45,7 +45,7 @@ def lambda_handler(event, context):
         response = modifyProduct(requestBody)
     elif httpMethod == deleteMethod and path == productPath:
         requestBody = json.loads(event['body'])
-        response = deleteProduct(requestBody['productId'])
+        response = deleteProduct(requestBody['id'])
     else:
         response = buildResponse(404, 'Not found')
     
@@ -56,7 +56,7 @@ def getProduct(productId):
     try:
         response = table.get_item(
             Key={
-                'productid': productId
+                'id': productId
             }
         )
         if 'Item' in response:
@@ -102,14 +102,15 @@ def modifyProduct(event):
             
             
             Key={
-                'productid': event['productid']
+                'id': event['id']
             },
-            UpdateExpression='SET productname=:pn, productnumber= :pnum ,productbrand=:pb, details=:d',
+            UpdateExpression='SET fname=:pn, lname= :pnum ,username=:pb, email=:d , avatar= :a',
             ExpressionAttributeValues={
-                ':pn': "a",
-                ':pnum':event['productnumber'],
-                ':pb':event['productbrand'],
-                ':d':event['details'],
+                ':pn': event['fname'],
+                ':pnum':event['lname'],
+                ':pb':event['username'],
+                ':d':event['email'],
+                ':a': event['avatar'],
             },
             ReturnValues='UPDATED_NEW'
         )
@@ -128,7 +129,7 @@ def deleteProduct(productId):
     try:
         response = table.delete_item(
             Key={
-                'productid': productId
+                'id': productId
             },
             ReturnValues='ALL_OLD'
         )
@@ -145,10 +146,12 @@ def buildResponse(statusCode, body=None):
     response = {
         'statusCode': statusCode,
         'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
+            
         }
     }
     if body is not None:
         response['body'] = json.dumps(body, cls=CustomEncoder)
+        
     return response
