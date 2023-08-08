@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 #define our dynamodb table
-dynamodbTableName = 'userseverless'
+dynamodbTableName = 'userserverless'
 
 #define our dynamo clients
 dynamodb = boto3.resource('dynamodb')
