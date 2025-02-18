@@ -2,14 +2,14 @@ import boto3
 import json
 from custom_encoder import CustomEncoder
 import logging 
-import os
+
 
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 #define our dynamodb table
-dynamodbTableName = os.environ['DYNAMODB_TABLE']
+dynamodbTableName = "userserverless"
 
 #define our dynamo clients
 dynamodb = boto3.resource('dynamodb')
