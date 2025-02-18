@@ -1,14 +1,15 @@
 import boto3
 import json
 from custom_encoder import CustomEncoder
-import logging
+import logging 
+import os
 
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 #define our dynamodb table
-dynamodbTableName = 'userserverless'
+dynamodbTableName = os.environ['DYNAMODB_TABLE']
 
 #define our dynamo clients
 dynamodb = boto3.resource('dynamodb')
@@ -63,8 +64,8 @@ def getProduct(productId):
             return buildResponse(200, response['Item'])
         else:
             return buildResponse(404, {'Message': 'ProductId %s not found' % productId})
-    except:
-        logger.exception('Do your custom error handling here. I am just gonna log it out here')
+    except Exception as e:
+        logger.exception(f"Error: {e}")
 
 def getProducts():
     try:
@@ -79,8 +80,8 @@ def getProducts():
             'products': result
         }
         return buildResponse(200, body)
-    except:
-        logger.exception('Do your custom error handling here. I am just gonna log it out here')
+    except Exception as e:
+         logger.exception(f"Error: {e}")
 
 def saveProduct(requestBody):
     try:
@@ -91,8 +92,9 @@ def saveProduct(requestBody):
             'Item': requestBody
         }
         return buildResponse(200, body)
-    except:
-        logger.exception('sorry your item wasnt ')
+    except Exception as e:
+        logger.exception(f"Error: {e}")
+        
 
 def modifyProduct(event):
     
@@ -122,8 +124,8 @@ def modifyProduct(event):
             'UpdateAttributes': response
         }
         return buildResponse(200, body)
-    except:
-        logger.exception('Do your custom error handling here. I am just gonna log it out here')
+    except Exception as e:
+        logger.exception(f"Error: {e}")
 
 def deleteProduct(productId):
     try:
@@ -139,8 +141,9 @@ def deleteProduct(productId):
             'deletedItem': response
         }
         return buildResponse(200, body)
-    except:
-        logger.exception('Do your custom error handling here. I am just gonna log it out here')
+    except Exception as e:
+        logger.exception(f"Error: {e}")
+        
 
 def buildResponse(statusCode, body=None):
     response = {
